@@ -1,5 +1,5 @@
-import { Scanner } from '@yudiel/react-qr-scanner'
 import { useState } from 'react'
+import { QrReader } from 'react-qr-reader'
 import { SCAN_DATA } from '../../constants'
 import s from './qrCodScanner.module.css'
 
@@ -7,27 +7,26 @@ export const QRCodScanner = () => {
 	const [scanned, setScanned] = useState(null)
 
 	const scanHandler = (result) => {
-		setScanned(result[0].rawValue)
+		if (!result) return
+		setScanned(result.text)
 	
 		const prevData = JSON.parse(localStorage.getItem(SCAN_DATA) || '[]')
 
+		if (prevData.includes(result.text)) return
+
 		localStorage.setItem(
 			SCAN_DATA, 
-			JSON.stringify([...result[0].rawValue]))
+			JSON.stringify([...result.text]))
   }
 	//console.log(SCAN_DATA)
 
 	return (
 		<div className={s.container}>
-			
-			<Scanner classNames={s.result}
-				onScan={scanHandler } 
-				components={{
-						audio : false,
-						finder : true
-				}}
-				styles={{container: {width :250}}} 
-			/>
+			<QrReader
+				scanDelay={1000}
+        onResult={scanHandler}
+        containerStyle={{ width: '500px' }}
+      />
 			<p className={s.result}>{scanned}</p>
 		</div>
 	)
